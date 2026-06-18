@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaSys Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --teal:   #0a7c6e;
+  --teal2:  #0d9e8c;
+  --teal3:  #e0f5f2;
+  --navy:   #0d2137;
+  --navy2:  #16324f;
+  --gold:   #f0a500;
+  --goldbg: #fff8e6;
+  --red:    #d64040;
+  --redbg:  #fdeaea;
+  --warn:   #e07a20;
+  --warnbg: #fff3e0;
+  --bg:     #f1f5f8;
+  --surf:   #ffffff;
+  --border: #dce6ed;
+  --text:   #0d2137;
+  --muted:  #6b7f93;
+  --shadow: 0 2px 14px rgba(13,33,55,0.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,var(--teal) 100%);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:0;}
+.login-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:40px 44px;width:380px;max-width:95vw;backdrop-filter:blur(8px);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo h1{color:#fff;font-size:26px;font-weight:800;letter-spacing:-0.5px;}
+.login-logo p{color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
+.role-btn{border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);border-radius:10px;padding:14px 8px;color:rgba(255,255,255,0.7);cursor:pointer;text-align:center;transition:all 0.18s;font-size:12px;font-weight:600;}
+.role-btn:hover{border-color:var(--teal2);background:rgba(13,158,140,0.15);color:#fff;}
+.role-btn.selected{border-color:var(--teal2);background:rgba(13,158,140,0.25);color:#fff;}
+.role-btn .role-icon{font-size:22px;display:block;margin-bottom:6px;}
+.pin-label{color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;}
+.pin-dots{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);transition:all 0.15s;}
+.pin-dot.filled{background:var(--teal2);border-color:var(--teal2);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.pin-key{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:18px;font-weight:600;padding:14px;cursor:pointer;transition:all 0.12s;font-family:'JetBrains Mono',monospace;}
+.pin-key:hover{background:rgba(255,255,255,0.18);}
+.pin-key:active{transform:scale(0.94);}
+.pin-error{color:#ff8a8a;font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
+.branch-sel{width:100%;padding:10px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;margin-bottom:16px;outline:none;}
+.branch-sel option{background:#1a3a5c;color:#fff;}
+
+/* ── TOPBAR ── */
+#topbar{background:var(--navy);color:#fff;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 8px rgba(13,33,55,0.3);}
+#topbar .tb-left{display:flex;align-items:center;gap:14px;}
+#topbar .app-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;}
+#topbar .app-title span{color:var(--teal2);}
+.branch-tag{background:rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.7);font-weight:500;}
+.role-tag{border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
+.role-tag.manager{background:rgba(240,165,0,0.25);color:var(--gold);}
+.role-tag.pharmacist{background:rgba(13,158,140,0.25);color:var(--teal2);}
+.role-tag.cashier{background:rgba(255,255,255,0.12);color:#fff;}
+#topbar .tb-right{display:flex;align-items:center;gap:10px;}
+.badge-pill{background:var(--red);color:#fff;border-radius:12px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;}
+.logout-btn{background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.logout-btn:hover{background:rgba(255,255,255,0.2);color:#fff;}
+
+/* ── APP LAYOUT ── */
+#appShell{display:flex;flex:1;overflow:hidden;}
+#sidebar{width:210px;min-width:210px;background:var(--navy2);display:flex;flex-direction:column;overflow-y:auto;}
+#sidebar nav{padding:10px 0;flex:1;}
+.nav-group{margin-bottom:4px;}
+.nav-group-label{padding:12px 18px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all 0.15s;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-item.active{background:rgba(13,158,140,0.15);color:#fff;border-left-color:var(--teal2);}
+.nav-item .ni{width:18px;font-size:14px;text-align:center;}
+#sidebar .sid-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.3);}
+.locked-item{opacity:0.35;pointer-events:none;}
+
+#content{flex:1;overflow-y:auto;padding:24px;}
+
+/* ── SECTION ── */
+.section{display:none;}.section.active{display:block;}
+
+/* ── CARDS ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surf);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid var(--teal);}
+.stat-card.gold{border-top-color:var(--gold);}
+.stat-card.red{border-top-color:var(--red);}
+.stat-card.warn{border-top-color:var(--warn);}
+.stat-card .sc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;}
+.stat-card .sc-val{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;}
+.stat-card .sc-sub{font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* ── PANEL ── */
+.panel{background:var(--surf);border-radius:12px;box-shadow:var(--shadow);margin-bottom:20px;}
+.ph{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ph h3{font-size:13px;font-weight:700;}
+.pb{padding:20px;}
+
+/* ── FORM ── */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;}
+.fg input,.fg select{padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:#f9fbfc;outline:none;transition:border 0.15s;}
+.fg input:focus,.fg select:focus{border-color:var(--teal);background:#fff;}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;}
+.fa{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 18px;border-radius:7px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:0.2px;}
+.btn-teal{background:var(--teal);color:#fff;}.btn-teal:hover{background:var(--teal2);}
+.btn-gold{background:var(--gold);color:#fff;}.btn-gold:hover{background:#d49000;}
+.btn-red{background:var(--red);color:#fff;}.btn-red:hover{background:#b83030;}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text);}.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm{padding:5px 11px;font-size:11px;border-radius:5px;}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:4px;}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead tr{background:var(--bg);}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f6faf9;}
+
+/* ── CHIPS ── */
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:0.3px;}
+.chip-green{background:#d4f5e6;color:#0a6a35;}
+.chip-red{background:var(--redbg);color:var(--red);}
+.chip-yellow{background:#fff3cc;color:#7a5500;}
+.chip-blue{background:#ddeeff;color:#1155aa;}
+.chip-teal{background:var(--teal3);color:var(--teal);}
+.chip-grey{background:#eef1f5;color:#556070;}
+
+/* ── CART ── */
+.sale-layout{display:grid;grid-template-columns:1fr 320px;gap:18px;}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.cart-item:last-child{border-bottom:none;}
+.qty-ctrl{display:flex;align-items:center;gap:7px;}
+.qty-ctrl button{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:14px;font-weight:700;color:var(--text);line-height:1;}
+.qty-ctrl span{font-family:'JetBrains Mono',monospace;font-weight:600;min-width:22px;text-align:center;font-size:13px;}
+.cart-total{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--teal);margin:12px 0;}
+
+/* ── CHART BARS ── */
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.chart-row .bl{width:140px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-out{flex:1;background:var(--bg);border-radius:4px;height:13px;overflow:hidden;}
+.bar-in{height:100%;border-radius:4px;background:var(--teal);transition:width 0.4s;}
+.bar-v{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);min-width:70px;text-align:right;}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(13,33,55,0.45);display:none;align-items:center;justify-content:center;z-index:800;}
+.overlay.open{display:flex;}
+.modal{background:var(--surf);border-radius:14px;padding:26px;width:460px;max-width:95vw;box-shadow:0 10px 50px rgba(13,33,55,0.25);}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:16px;}
+.modal-actions{margin-top:18px;display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── RECEIPT ── */
+#receiptArea{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:#fffef5;border:1px dashed var(--border);border-radius:8px;padding:16px;white-space:pre-wrap;max-height:300px;overflow-y:auto;line-height:1.6;}
+
+/* ── ALERTS ── */
+.alert{padding:10px 14px;border-radius:7px;font-size:12px;margin-bottom:12px;}
+.alert-warn{background:var(--warnbg);border-left:4px solid var(--warn);color:#7a3a00;}
+.alert-red{background:var(--redbg);border-left:4px solid var(--red);color:#8a0000;}
+.alert-green{background:var(--teal3);border-left:4px solid var(--teal);color:#0a4a3a;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(13,33,55,0.4);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:9000;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* ── EXPIRY TRACKER ── */
+.exp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.exp-row:last-child{border-bottom:none;}
+.exp-days{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── SEARCH ── */
+.search-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;}
+.search-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;outline:none;background:#f9fbfc;}
+.search-row input:focus{border-color:var(--teal);background:#fff;}
+
+/* ── PRINT ── */
+@media print{body *{visibility:hidden;}#receiptArea,#receiptArea *{visibility:visible;}#receiptArea{position:fixed;top:0;left:0;width:100%;}}
+
+/* ── ANALYSIS TABS ── */
+.an-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;flex-wrap:wrap;}
+.an-tab{padding:9px 15px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;}
+.an-tab:hover{color:var(--teal);}
+.an-tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.an-tp{display:none;}
+.an-tp.active{display:block;}
+
+/* ── HEATMAP ── */
+.heatmap-wrap{overflow-x:auto;}
+.heatmap-table{border-collapse:collapse;font-size:11px;}
+.heatmap-table th{padding:6px 8px;font-size:10px;color:var(--muted);font-weight:600;text-align:center;}
+.heatmap-table td.hm-cell{padding:7px 9px;text-align:center;border-radius:5px;min-width:54px;font-family:'JetBrains Mono',monospace;font-weight:600;transition:transform 0.1s;}
+.heatmap-table td.hm-cell:hover{transform:scale(1.08);}
+.heatmap-table td.hm-rowlabel{font-weight:700;color:var(--text);padding:6px 10px;white-space:nowrap;font-family:'Inter',sans-serif;}
+.heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;color:var(--muted);}
+.heatmap-legend .lg-box{width:16px;height:16px;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN SCREEN ═══════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>Pharma<span style="color:var(--teal2);">Sys</span> Pro</h1>
+      <p>Multi-Branch Pharmacy System</p>
+    </div>
+
+    <div class="fg" style="margin-bottom:14px;">
+      <label style="color:rgba(255,255,255,0.5);">Select Branch</label>
+      <select class="branch-sel" id="loginBranch"></select>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div class="pin-label">Select Role</div>
+      <div class="role-grid">
+        <div class="role-btn" onclick="selectRole('manager',this)"><span class="role-icon">👔</span>Manager</div>
+        <div class="role-btn" onclick="selectRole('pharmacist',this)"><span class="role-icon">💊</span>Pharmacist</div>
+        <div class="role-btn" onclick="selectRole('cashier',this)"><span class="role-icon">🧾</span>Cashier</div>
+      </div>
+    </div>
+
+    <div class="pin-label">Enter PIN</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinPress('clr')" style="font-size:12px;">CLR</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinPress('del')" style="font-size:14px;">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+  <div style="color:rgba(255,255,255,0.3);font-size:11px;margin-top:14px;">Default PINs: Manager 1234 · Pharmacist 5678 · Cashier 0000</div>
+</div>
+
+<!-- ═══════════ TOPBAR ═══════════ -->
+<div id="topbar" style="display:none;">
+  <div class="tb-left">
+    <div class="app-title">Pharma<span>Sys</span> Pro</div>
+    <div class="branch-tag" id="tbBranch">Branch</div>
+    <div class="role-tag" id="tbRole">Role</div>
+  </div>
+  <div class="tb-right">
+    <span class="badge-pill" id="lowBadge" onclick="gotoSection('stock')">0 Low</span>
+    <span class="badge-pill" id="expBadge" style="background:var(--warn);" onclick="gotoSection('expiry')">0 Expiring</span>
+    <button class="logout-btn" onclick="doLogout()">⇠ Logout</button>
+  </div>
+</div>
+
+<!-- ═══════════ APP SHELL ═══════════ -->
+<div id="appShell" style="display:none;">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <nav id="sideNav"></nav>
+    <div class="sid-foot" id="sidFoot"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div class="section" id="sec-dashboard">
+      <div class="cards-grid" id="dashCards"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div class="panel">
+          <div class="ph"><h3>Recent Sales</h3></div>
+          <div class="pb"><div class="tw"><table>
+            <thead><tr><th>Time</th><th>Items</th><th>Total (UGX)</th><th>Cashier</th></tr></thead>
+            <tbody id="dashRecentSales"></tbody>
+          </table></div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>⚠️ Alerts</h3></div>
+          <div class="pb" id="dashAlerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDICINES -->
+    <div class="section" id="sec-medicines">
+      <div class="panel" id="medFormPanel">
+        <div class="ph"><h3 id="medFormTitle">Add Medicine</h3></div>
+        <div class="pb">
+          <div class="fgrid">
+            <div class="fg"><label>Medicine Name</label><input id="mName" placeholder="e.g. Paracetamol 500mg"></div>
+            <div class="fg"><label>Category</label>
+              <select id="mCat"><option>Analgesics</option><option>Antibiotics</option><option>Antimalarials</option><option>Antifungals</option><option>Vitamins & Supplements</option><option>Antacids</option><option>Antihistamines</option><option>Antidiabetics</option><option>Antihypertensives</option><option>Other</option></select>
+            </div>
+            <div class="fg"><label>Quantity</label><input id="mQty" type="number" min="0" placeholder="0"></div>
+            <div class="fg"><label>Low Stock Alert</label><input id="mLow" type="number" min="1" placeholder="10"></div>
+            <div class="fg"><label>Buying Price (UGX)</label><input id="mBuy" type="number" min="0" placeholder="0"></div>
+            <div class="fg"><label>Selling Price (UGX)</label><input id="mSell" type="number" min="0" placeholder="0"></div>
+            <div class="fg"><label>Expiry Date</label><input id="mExp" type="date"></div>
+            <div class="fg"><label>Supplier</label><input id="mSup" placeholder="Supplier name"></div>
+          </div>
+          <div class="fa">
+            <button class="btn btn-teal" onclick="saveMed()">💾 Save</button>
+            <button class="btn btn-ghost" onclick="clearMedForm()">✕ Clear</button>
+            <span id="medMsg" style="font-size:11px;color:var(--teal);"></span>
+          </div>
+          <input type="hidden" id="mEditId">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>Medicine Inventory</h3>
+          <input id="medSearch" placeholder="Search..." style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;width:200px;" oninput="renderMedTable()">
+        </div>
+        <div class="pb"><div class="tw"><table>
+          <thead><tr><th>Name</th><th>Category</th><th>Qty</th><th>Sell (UGX)</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="medTable"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- SALES -->
+    <div class="section" id="sec-sales">
+      <div class="sale-layout">
+        <div>
+          <div class="panel">
+            <div class="ph"><h3>New Sale</h3></div>
+            <div class="pb">
+              <div class="fgrid">
+                <div class="fg"><label>Medicine</label><select id="saleMed"><option value="">-- Select --</option></select></div>
+                <div class="fg"><label>Qty</label><input id="saleQty" type="number" min="1" value="1"></div>
+              </div>
+              <div class="fa"><button class="btn btn-teal" onclick="addToCart()">➕ Add to Cart</button></div>
+              <div id="saleAlertDiv"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Sales History — <span id="salesBranchLabel"></span></h3></div>
+            <div class="pb"><div class="tw"><table>
+              <thead><tr><th>Date/Time</th><th>Customer</th><th>Items</th><th>Total</th><th>Profit</th><th>By</th><th></th></tr></thead>
+              <tbody id="salesHistTable"></tbody>
+            </table></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel" style="position:sticky;top:0;">
+            <div class="ph"><h3>🛒 Cart</h3></div>
+            <div class="pb">
+              <div id="cartItems"></div>
+              <div class="cart-total" id="cartTotal">UGX 0</div>
+              <div class="fg" style="margin-bottom:10px;"><label>Customer Name</label><input id="custName" placeholder="Walk-in"></div>
+              <button class="btn btn-teal" style="width:100%;margin-bottom:8px;" onclick="completeSale()">✅ Complete Sale</button>
+              <button class="btn btn-ghost" style="width:100%;" onclick="clearCart()">🗑️ Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="section" id="sec-stock">
+      <div class="panel">
+        <div class="ph"><h3>Restock</h3></div>
+        <div class="pb">
+          <div class="fgrid">
+            <div class="fg"><label>Medicine</label><select id="rstMed"></select></div>
+            <div class="fg"><label>Add Quantity</label><input id="rstQty" type="number" min="1" placeholder="0"></div>
+            <div class="fg"><label>New Buy Price (optional)</label><input id="rstPrice" type="number" placeholder="Keep current"></div>
+            <div class="fg"><label>New Expiry (optional)</label><input id="rstExp" type="date"></div>
+          </div>
+          <div class="fa"><button class="btn btn-teal" onclick="doRestock()">📦 Restock</button><span id="rstMsg" style="font-size:11px;color:var(--teal);"></span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>Stock Status</h3>
+          <input id="stockSearch" placeholder="Search..." style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;width:180px;" oninput="renderStockTable()">
+        </div>
+        <div class="pb"><div class="tw"><table>
+          <thead><tr><th>Medicine</th><th>Category</th><th>In Stock</th><th>Alert At</th><th>Buy (UGX)</th><th>Sell (UGX)</th><th>Expiry</th><th>Status</th></tr></thead>
+          <tbody id="stockTable"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- EXPIRY TRACKER -->
+    <div class="section" id="sec-expiry">
+      <div class="panel">
+        <div class="ph"><h3>Expiry Tracker</h3>
+          <select id="expFilter" onchange="renderExpiryList()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;">
+            <option value="30">Expiring in 30 days</option>
+            <option value="60">Expiring in 60 days</option>
+            <option value="90">Expiring in 90 days</option>
+            <option value="0">Expired</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div class="pb" id="expiryList"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS (manager only) -->
+    <div class="section" id="sec-reports">
+      <div class="cards-grid" id="repCards"></div>
+      <div class="panel">
+        <div class="ph"><h3>Filter by Branch</h3></div>
+        <div class="pb" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="repBranch" onchange="renderReports()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;"></select>
+          <select id="repPeriod" onchange="renderReports()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div class="panel"><div class="ph"><h3>Top Selling Medicines</h3></div><div class="pb" id="topSellChart"></div></div>
+        <div class="panel"><div class="ph"><h3>Sales by Category</h3></div><div class="pb" id="catChart"></div></div>
+      </div>
+      <div class="panel"><div class="ph"><h3>Daily Summary</h3></div>
+        <div class="pb"><div class="tw"><table>
+          <thead><tr><th>Date</th><th>Branch</th><th>Sales</th><th>Revenue (UGX)</th><th>Profit (UGX)</th></tr></thead>
+          <tbody id="dailyTable"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS (manager + pharmacist) -->
+    <div class="section" id="sec-analysis">
+      <div class="panel">
+        <div class="ph"><h3>Filters</h3></div>
+        <div class="pb" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="anBranch" onchange="renderAnalysis()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;"></select>
+          <select id="anPeriod" onchange="renderAnalysis()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;">
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="an-tabs">
+        <div class="an-tab active" onclick="switchAnTab('anHeatmap',this)">🌡️ Profitability Heatmap</div>
+        <div class="an-tab" onclick="switchAnTab('anForecast',this)">📈 Sales Forecast</div>
+        <div class="an-tab" onclick="switchAnTab('anRetention',this)">👥 Customer Retention</div>
+        <div class="an-tab" onclick="switchAnTab('anDeadstock',this)">💀 Dead Stock</div>
+      </div>
+
+      <!-- PROFITABILITY HEATMAP -->
+      <div class="an-tp active" id="anHeatmap">
+        <div class="cards-grid" id="heatmapCards"></div>
+        <div class="panel">
+          <div class="ph"><h3>Profit by Medicine × Category</h3><span style="font-size:11px;color:var(--muted);">Darker = more profitable</span></div>
+          <div class="pb" id="profitHeatmapGrid"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Revenue by Day of Week × Hour</h3><span style="font-size:11px;color:var(--muted);">When you make the most money</span></div>
+          <div class="pb" id="timeHeatmapGrid"></div>
+        </div>
+      </div>
+
+      <!-- SALES FORECAST -->
+      <div class="an-tp" id="anForecast">
+        <div class="panel">
+          <div class="ph"><h3>Sales Forecast — Next 30 Days</h3></div>
+          <div class="pb" id="forecastContent"></div>
+        </div>
+      </div>
+
+      <!-- CUSTOMER RETENTION -->
+      <div class="an-tp" id="anRetention">
+        <div class="cards-grid" id="retentionCards"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <div class="panel"><div class="ph"><h3>Top Customers by Spend</h3></div><div class="pb" id="topCustomersTbl"></div></div>
+          <div class="panel"><div class="ph"><h3>Retention Visual</h3></div><div class="pb" id="retentionVisual"></div></div>
+        </div>
+      </div>
+
+      <!-- DEAD STOCK -->
+      <div class="an-tp" id="anDeadstock">
+        <div class="panel">
+          <div class="ph"><h3>Dead Stock Report</h3>
+            <select id="deadDays" onchange="renderAnalysis()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;">
+              <option value="30">No sales in 30 days</option>
+              <option value="60">No sales in 60 days</option>
+              <option value="90">No sales in 90 days</option>
+            </select>
+          </div>
+          <div class="pb" id="deadstockContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRANCHES (manager only) -->
+    <div class="section" id="sec-branches">
+      <div class="panel">
+        <div class="ph"><h3>Manage Branches</h3></div>
+        <div class="pb">
+          <div class="fgrid">
+            <div class="fg"><label>Branch Name</label><input id="brName" placeholder="e.g. Kampala Main"></div>
+            <div class="fg"><label>Location</label><input id="brLoc" placeholder="e.g. Kampala Road"></div>
+          </div>
+          <div class="fa"><button class="btn btn-teal" onclick="addBranch()">➕ Add Branch</button><span id="brMsg" style="font-size:11px;color:var(--teal);"></span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>All Branches</h3></div>
+        <div class="pb"><div class="tw"><table>
+          <thead><tr><th>Branch</th><th>Location</th><th>Medicines</th><th>Total Sales</th><th>Actions</th></tr></thead>
+          <tbody id="branchTable"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS (manager only) -->
+    <div class="section" id="sec-settings">
+      <div class="panel">
+        <div class="ph"><h3>Pharmacy Settings</h3></div>
+        <div class="pb">
+          <div class="fgrid">
+            <div class="fg"><label>Pharmacy Name</label><input id="setName" placeholder="My Pharmacy"></div>
+            <div class="fg"><label>Tagline</label><input id="setTag" placeholder="Your health, our priority"></div>
+            <div class="fg"><label>Phone</label><input id="setPhone" placeholder="+256 ..."></div>
+            <div class="fg"><label>Address</label><input id="setAddr" placeholder="Kampala, Uganda"></div>
+          </div>
+          <div class="fa"><button class="btn btn-teal" onclick="saveSettings()">💾 Save</button><span id="setMsg" style="font-size:11px;color:var(--teal);"></span></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:0;">
+        <div class="ph"><h3>Change PINs</h3></div>
+        <div class="pb">
+          <div class="fgrid">
+            <div class="fg"><label>Manager PIN</label><input id="pinMgr" type="password" maxlength="4" placeholder="4 digits"></div>
+            <div class="fg"><label>Pharmacist PIN</label><input id="pinPhr" type="password" maxlength="4" placeholder="4 digits"></div>
+            <div class="fg"><label>Cashier PIN</label><input id="pinCsh" type="password" maxlength="4" placeholder="4 digits"></div>
+          </div>
+          <div class="fa"><button class="btn btn-gold" onclick="savePins()">🔒 Update PINs</button><span id="pinMsg" style="font-size:11px;color:var(--teal);"></span></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:0;">
+        <div class="ph"><h3>Data Management</h3></div>
+        <div class="pb" style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="exportData()">📤 Export Backup (JSON)</button>
+          <button class="btn btn-red" onclick="if(confirm('Clear ALL data? Cannot be undone.'))clearAll()">🗑️ Clear All Data</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /appShell -->
+
+<!-- RECEIPT MODAL -->
+<div class="overlay" id="receiptOverlay">
+  <div class="modal">
+    <h3>🧾 Receipt</h3>
+    <div id="receiptArea"></div>
+    <div class="modal-actions">
+      <button class="btn btn-teal" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-ghost" onclick="closeOverlay('receiptOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══════════ SCRIPT ═══════════ -->
+<script>
+// ── STORAGE ──────────────────────────────────────────────────
+const S = {
+  g: k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } },
+  s: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+// ── STATE ─────────────────────────────────────────────────────
+let branches  = S.g('ps_branches') || [{ id:'b1', name:'Main Branch', location:'Kampala' }];
+let medicines = S.g('ps_meds')     || {};   // keyed by branchId
+let sales     = S.g('ps_sales')    || [];
+let settings  = S.g('ps_settings') || { name:'PharmaSys Pro', tag:'Your health, our priority', phone:'', addr:'Uganda' };
+let pins      = S.g('ps_pins')     || { manager:'1234', pharmacist:'5678', cashier:'0000' };
+
+let currentBranch = null;
+let currentRole   = null;
+let cart          = [];
+let editMedId     = null;
+
+function persist() {
+  S.s('ps_branches', branches);
+  S.s('ps_meds',     medicines);
+  S.s('ps_sales',    sales);
+  S.s('ps_settings', settings);
+  S.s('ps_pins',     pins);
+}
+
+function branchMeds(bid) {
+  if (!medicines[bid]) medicines[bid] = [];
+  return medicines[bid];
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+let pinBuffer = '';
+let selectedRole = null;
+
+function populateLoginBranch() {
+  const sel = document.getElementById('loginBranch');
+  sel.innerHTML = branches.map(b => `<option value="${b.id}">${b.name} — ${b.location}</option>`).join('');
+}
+
+function selectRole(role, el) {
+  selectedRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function pinPress(v) {
+  if (!selectedRole) { document.getElementById('pinError').textContent = 'Select a role first.'; return; }
+  if (v === 'clr') { pinBuffer = ''; }
+  else if (v === 'del') { pinBuffer = pinBuffer.slice(0,-1); }
+  else if (pinBuffer.length < 4) { pinBuffer += v; }
+  updatePinDots();
+  if (pinBuffer.length === 4) { setTimeout(tryLogin, 120); }
+}
+
+function updatePinDots() {
+  for (let i=0;i<4;i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function tryLogin() {
+  const branchId = document.getElementById('loginBranch').value;
+  const branch = branches.find(b => b.id === branchId);
+  if (pinBuffer === pins[selectedRole]) {
+    currentBranch = branch;
+    currentRole   = selectedRole;
+    pinBuffer = '';
+    updatePinDots();
+    document.getElementById('pinError').textContent = '';
+    launchApp();
+  } else {
+    document.getElementById('pinError').textContent = '✗ Incorrect PIN. Try again.';
+    pinBuffer = '';
+    updatePinDots();
+  }
+}
+
+function doLogout() {
+  currentBranch = null; currentRole = null; cart = [];
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('topbar').style.display = 'none';
+  document.getElementById('appShell').style.display = 'none';
+  populateLoginBranch();
+}
+
+// ── APP LAUNCH ─────────────────────────────────────────────────
+const NAV_ITEMS = {
+  manager:     ['dashboard','medicines','sales','stock','expiry','reports','analysis','branches','settings'],
+  pharmacist:  ['dashboard','medicines','sales','stock','expiry','analysis'],
+  cashier:     ['dashboard','sales','stock','expiry'],
+};
+const NAV_LABELS = {
+  dashboard:'📊 Dashboard', medicines:'💊 Medicines', sales:'🛒 Sales',
+  stock:'📦 Stock', expiry:'⏰ Expiry', reports:'📈 Reports',
+  analysis:'🧠 Analysis', branches:'🏪 Branches', settings:'⚙️ Settings',
+};
+
+function launchApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'flex';
+
+  document.getElementById('tbBranch').textContent = '🏪 ' + currentBranch.name;
+  document.getElementById('tbRole').textContent = currentRole.charAt(0).toUpperCase()+currentRole.slice(1);
+  document.getElementById('tbRole').className = 'role-tag ' + currentRole;
+
+  buildSidebar();
+  gotoSection('dashboard');
+  updateBadges();
+}
+
+function buildSidebar() {
+  const allowed = NAV_ITEMS[currentRole];
+  let html = '<div class="nav-group">';
+  allowed.forEach(id => {
+    html += `<div class="nav-item" id="nav-${id}" onclick="gotoSection('${id}')">`+
+            `<span class="ni">${NAV_LABELS[id].split(' ')[0]}</span>`+
+            `<span>${NAV_LABELS[id].split(' ').slice(1).join(' ')}</span></div>`;
+  });
+  html += '</div>';
+  document.getElementById('sideNav').innerHTML = html;
+  document.getElementById('sidFoot').textContent = 'v2.0 Pro · Offline';
+}
+
+function gotoSection(id) {
+  const allowed = NAV_ITEMS[currentRole];
+  if (!allowed.includes(id)) return;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('sec-'+id);
+  if (sec) sec.classList.add('active');
+  const nav = document.getElementById('nav-'+id);
+  if (nav) nav.classList.add('active');
+
+  if (id==='dashboard') renderDashboard();
+  if (id==='medicines') { renderMedTable(); configMedForm(); }
+  if (id==='sales')     { populateSaleSel(); renderSalesHist(); document.getElementById('salesBranchLabel').textContent = currentBranch.name; }
+  if (id==='stock')     { renderStockTable(); populateRstSel(); }
+  if (id==='expiry')    renderExpiryList();
+  if (id==='reports')   { populateRepBranch(); renderReports(); }
+  if (id==='analysis')  { populateAnalysisBranch(); renderAnalysis(); }
+  if (id==='branches')  renderBranchTable();
+  if (id==='settings')  loadSettings();
+}
+
+// ── MEDICINES ─────────────────────────────────────────────────
+function genId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+
+function configMedForm() {
+  const canEdit = currentRole === 'manager' || currentRole === 'pharmacist';
+  document.getElementById('medFormPanel').style.display = canEdit ? 'block' : 'none';
+}
+
+function saveMed() {
+  const name = document.getElementById('mName').value.trim();
+  if (!name) { toast('Medicine name is required.'); return; }
+  const meds = branchMeds(currentBranch.id);
+  const med = {
+    id: editMedId || genId(),
+    name, category: document.getElementById('mCat').value,
+    qty: parseInt(document.getElementById('mQty').value)||0,
+    lowAlert: parseInt(document.getElementById('mLow').value)||10,
+    buyPrice: parseFloat(document.getElementById('mBuy').value)||0,
+    sellPrice: parseFloat(document.getElementById('mSell').value)||0,
+    expiry: document.getElementById('mExp').value,
+    supplier: document.getElementById('mSup').value.trim(),
+    totalSold: 0,
+  };
+  if (editMedId) {
+    const idx = meds.findIndex(m=>m.id===editMedId);
+    med.totalSold = meds[idx].totalSold||0;
+    meds[idx] = med;
+  } else {
+    meds.push(med);
+  }
+  medicines[currentBranch.id] = meds;
+  persist(); clearMedForm(); renderMedTable(); updateBadges();
+  toast(editMedId ? 'Medicine updated.' : 'Medicine added.');
+  editMedId = null;
+}
+
+function clearMedForm() {
+  ['mName','mQty','mLow','mBuy','mSell','mExp','mSup'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('mCat').value = 'Analgesics';
+  document.getElementById('mEditId').value = '';
+  document.getElementById('medFormTitle').textContent = 'Add Medicine';
+  editMedId = null;
+}
+
+function editMed(id) {
+  const m = branchMeds(currentBranch.id).find(m=>m.id===id);
+  if (!m) return;
+  editMedId = id;
+  document.getElementById('mName').value = m.name;
+  document.getElementById('mCat').value = m.category;
+  document.getElementById('mQty').value = m.qty;
+  document.getElementById('mLow').value = m.lowAlert;
+  document.getElementById('mBuy').value = m.buyPrice;
+  document.getElementById('mSell').value = m.sellPrice;
+  document.getElementById('mExp').value = m.expiry;
+  document.getElementById('mSup').value = m.supplier;
+  document.getElementById('medFormTitle').textContent = 'Edit Medicine';
+  window.scrollTo(0,0);
+}
+
+function deleteMed(id) {
+  if (!confirm('Delete this medicine?')) return;
+  medicines[currentBranch.id] = branchMeds(currentBranch.id).filter(m=>m.id!==id);
+  persist(); renderMedTable(); updateBadges();
+  toast('Medicine deleted.');
+}
+
+function renderMedTable() {
+  const q = (document.getElementById('medSearch')?.value||'').toLowerCase();
+  const tbody = document.getElementById('medTable');
+  const canAct = currentRole==='manager'||currentRole==='pharmacist';
+  const list = branchMeds(currentBranch.id).filter(m=>m.name.toLowerCase().includes(q)||m.category.toLowerCase().includes(q));
+  if (!list.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No medicines found.</td></tr>'; return; }
+  const today = new Date();
+  tbody.innerHTML = list.map(m => {
+    const exp = m.expiry?new Date(m.expiry):null;
+    const expired = exp&&exp<today;
+    const soon = exp&&!expired&&exp<new Date(today.getFullYear(),today.getMonth()+2,today.getDate());
+    let chip = '<span class="chip chip-green">OK</span>';
+    if (m.qty===0) chip='<span class="chip chip-red">Out of Stock</span>';
+    else if (m.qty<=m.lowAlert) chip='<span class="chip chip-yellow">Low Stock</span>';
+    if (expired) chip+=' <span class="chip chip-red">Expired</span>';
+    else if (soon) chip+=' <span class="chip chip-yellow">Exp. Soon</span>';
+    const acts = canAct
+      ? `<button class="btn btn-gold btn-xs" onclick="editMed('${m.id}')">Edit</button>
+         <button class="btn btn-red btn-xs" onclick="deleteMed('${m.id}')">Del</button>`
+      : '—';
+    return `<tr>
+      <td><strong>${m.name}</strong>${m.supplier?`<br><small style="color:var(--muted)">${m.supplier}</small>`:''}</td>
+      <td><span class="chip chip-blue">${m.category}</span></td>
+      <td><strong>${m.qty}</strong></td>
+      <td>${ugx(m.sellPrice)}</td>
+      <td>${m.expiry||'—'}</td>
+      <td>${chip}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SALES ─────────────────────────────────────────────────────
+function populateSaleSel() {
+  const sel = document.getElementById('saleMed');
+  const avail = branchMeds(currentBranch.id).filter(m=>m.qty>0);
+  sel.innerHTML = '<option value="">-- Select Medicine --</option>' +
+    avail.map(m=>`<option value="${m.id}">${m.name} — Stock:${m.qty} — UGX ${ugx(m.sellPrice)}</option>`).join('');
+}
+
+function addToCart() {
+  const id = document.getElementById('saleMed').value;
+  const qty = parseInt(document.getElementById('saleQty').value)||1;
+  const m = branchMeds(currentBranch.id).find(m=>m.id===id);
+  if (!m) { saleAlert('Select a medicine.'); return; }
+  if (qty < 1) { saleAlert('Quantity must be at least 1.'); return; }
+  if (qty > m.qty) { saleAlert(`Only ${m.qty} units available.`); return; }
+  const ex = cart.find(c=>c.id===id);
+  if (ex) {
+    if (ex.qty+qty>m.qty){saleAlert(`Only ${m.qty} total available.`);return;}
+    ex.qty+=qty;
+  } else {
+    cart.push({id,name:m.name,qty,price:m.sellPrice,buyPrice:m.buyPrice});
+  }
+  document.getElementById('saleQty').value=1;
+  renderCart();
+  document.getElementById('saleAlertDiv').innerHTML='';
+}
+
+function renderCart() {
+  const el = document.getElementById('cartItems');
+  if (!cart.length) {
+    el.innerHTML='<p style="color:var(--muted);font-size:12px;text-align:center;padding:12px 0;">Cart is empty</p>';
+    document.getElementById('cartTotal').textContent='UGX 0'; return;
+  }
+  el.innerHTML = cart.map((c,i)=>`
+    <div class="cart-item">
+      <div><div style="font-size:12px;font-weight:600;">${c.name}</div>
+      <div style="font-size:10px;color:var(--muted);">${ugx(c.price)} × ${c.qty}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="qty-ctrl">
+          <button onclick="cQty(${i},-1)">−</button>
+          <span>${c.qty}</span>
+          <button onclick="cQty(${i},1)">+</button>
+        </div>
+        <strong style="font-family:'JetBrains Mono',monospace;font-size:12px;">${ugx(c.price*c.qty)}</strong>
+        <button class="btn btn-red btn-xs" onclick="removeCart(${i})">✕</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('cartTotal').textContent = 'UGX ' + ugx(cart.reduce((s,c)=>s+c.price*c.qty,0));
+}
+
+function cQty(i,d) {
+  const m = branchMeds(currentBranch.id).find(m=>m.id===cart[i].id);
+  cart[i].qty+=d;
+  if (cart[i].qty<=0) cart.splice(i,1);
+  else if (m&&cart[i].qty>m.qty) cart[i].qty=m.qty;
+  renderCart();
+}
+function removeCart(i){cart.splice(i,1);renderCart();}
+function clearCart(){cart=[];renderCart();}
+
+function completeSale() {
+  if (!cart.length){saleAlert('Cart is empty.');return;}
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const profit= cart.reduce((s,c)=>s+(c.price-c.buyPrice)*c.qty,0);
+  const sale = {
+    id:genId(), date:new Date().toISOString(),
+    branchId:currentBranch.id, branchName:currentBranch.name,
+    customer:document.getElementById('custName').value.trim()||'Walk-in',
+    role:currentRole, items:cart.map(c=>({...c})), total, profit,
+  };
+  cart.forEach(c=>{
+    const m=branchMeds(currentBranch.id).find(m=>m.id===c.id);
+    if(m){m.qty-=c.qty;m.totalSold=(m.totalSold||0)+c.qty;}
+  });
+  sales.unshift(sale);
+  persist(); cart=[];
+  document.getElementById('custName').value='';
+  renderCart(); renderSalesHist(); populateSaleSel(); updateBadges();
+  toast('✅ Sale completed!');
+  showReceipt(sale);
+}
+
+function renderSalesHist() {
+  const tbody = document.getElementById('salesHistTable');
+  const brSales = sales.filter(s=>s.branchId===currentBranch.id);
+  if (!brSales.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px;">No sales yet.</td></tr>';return;}
+  tbody.innerHTML = brSales.slice(0,60).map(s=>`<tr>
+    <td>${fmtDate(s.date)}</td>
+    <td>${s.customer}</td>
+    <td>${s.items.length}</td>
+    <td>${ugx(s.total)}</td>
+    <td style="color:var(--teal);">${ugx(s.profit)}</td>
+    <td><span class="chip chip-grey">${s.role||'—'}</span></td>
+    <td><button class="btn btn-ghost btn-xs" onclick='showReceiptById("${s.id}")'>🧾</button></td>
+  </tr>`).join('');
+}
+
+function saleAlert(msg){document.getElementById('saleAlertDiv').innerHTML=`<div class="alert alert-warn" style="margin-top:8px;">${msg}</div>`;setTimeout(()=>{const el=document.getElementById('saleAlertDiv');if(el)el.innerHTML='';},3000);}
+
+// ── RECEIPT ───────────────────────────────────────────────────
+function showReceipt(s) {
+  const st = settings;
+  let t=`${st.name}\n${st.tag}\n${st.addr} | ${st.phone}\n`;
+  t+=`Branch: ${s.branchName}\n`;
+  t+=`${'─'.repeat(38)}\n`;
+  t+=`Receipt : ${s.id.toUpperCase()}\nDate    : ${fmtDate(s.date)}\nCustomer: ${s.customer}\nServed by: ${s.role}\n`;
+  t+=`${'─'.repeat(38)}\n`;
+  t+=`${'ITEM'.padEnd(22)}QTY  AMOUNT\n${'─'.repeat(38)}\n`;
+  s.items.forEach(i=>{t+=`${i.name.substring(0,22).padEnd(22)}${String(i.qty).padStart(3)}  ${ugx(i.price*i.qty)}\n`;});
+  t+=`${'─'.repeat(38)}\nTOTAL   : UGX ${ugx(s.total)}\n${'─'.repeat(38)}\nThank you! Stay healthy.\n`;
+  document.getElementById('receiptArea').textContent=t;
+  document.getElementById('receiptOverlay').classList.add('open');
+}
+function showReceiptById(id){const s=sales.find(s=>s.id===id);if(s)showReceipt(s);}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+
+// ── STOCK ─────────────────────────────────────────────────────
+function renderStockTable() {
+  const q=(document.getElementById('stockSearch')?.value||'').toLowerCase();
+  const tbody=document.getElementById('stockTable');
+  const list=branchMeds(currentBranch.id).filter(m=>m.name.toLowerCase().includes(q));
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">No medicines.</td></tr>';return;}
+  const today=new Date();
+  tbody.innerHTML=list.map(m=>{
+    const exp=m.expiry?new Date(m.expiry):null;
+    const expired=exp&&exp<today;
+    const soon=exp&&!expired&&exp<new Date(today.getFullYear(),today.getMonth()+2,today.getDate());
+    let chip=m.qty===0?'<span class="chip chip-red">Out of Stock</span>':
+             m.qty<=m.lowAlert?'<span class="chip chip-yellow">Low Stock</span>':
+             '<span class="chip chip-green">OK</span>';
+    if(expired)chip+=' <span class="chip chip-red">Expired</span>';
+    else if(soon)chip+=' <span class="chip chip-yellow">Exp. Soon</span>';
+    return`<tr><td><strong>${m.name}</strong></td><td>${m.category}</td>
+      <td><strong style="font-family:'JetBrains Mono',monospace;">${m.qty}</strong></td>
+      <td>${m.lowAlert}</td><td>${ugx(m.buyPrice)}</td><td>${ugx(m.sellPrice)}</td>
+      <td>${m.expiry||'—'}</td><td>${chip}</td></tr>`;
+  }).join('');
+}
+
+function populateRstSel(){
+  document.getElementById('rstMed').innerHTML=branchMeds(currentBranch.id).map(m=>`<option value="${m.id}">${m.name} (${m.qty})</option>`).join('');
+}
+
+function doRestock(){
+  const id=document.getElementById('rstMed').value;
+  const qty=parseInt(document.getElementById('rstQty').value)||0;
+  const price=parseFloat(document.getElementById('rstPrice').value);
+  const exp=document.getElementById('rstExp').value;
+  if(!qty){toast('Enter quantity.');return;}
+  const m=branchMeds(currentBranch.id).find(m=>m.id===id);
+  if(!m)return;
+  m.qty+=qty;
+  if(price)m.buyPrice=price;
+  if(exp)m.expiry=exp;
+  persist(); renderStockTable(); populateRstSel(); updateBadges();
+  toast(`✓ Restocked ${qty} units of ${m.name}`);
+  ['rstQty','rstPrice','rstExp'].forEach(i=>{document.getElementById(i).value='';});
+}
+
+// ── EXPIRY ────────────────────────────────────────────────────
+function renderExpiryList() {
+  const filter=document.getElementById('expFilter').value;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const meds=branchMeds(currentBranch.id);
+  let list;
+  if(filter==='0') list=meds.filter(m=>m.expiry&&new Date(m.expiry)<today);
+  else if(filter==='all') list=meds.filter(m=>m.expiry);
+  else {
+    const cutoff=new Date(today); cutoff.setDate(cutoff.getDate()+parseInt(filter));
+    list=meds.filter(m=>m.expiry&&new Date(m.expiry)>=today&&new Date(m.expiry)<=cutoff);
+  }
+  list.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+  const el=document.getElementById('expiryList');
+  if(!list.length){el.innerHTML='<p style="color:var(--muted);font-size:13px;">No medicines match this filter. ✅</p>';return;}
+  el.innerHTML=list.map(m=>{
+    const exp=new Date(m.expiry); const diff=Math.round((exp-today)/(1000*60*60*24));
+    const chip=diff<0?'<span class="chip chip-red">EXPIRED</span>':
+               diff<=30?'<span class="chip chip-red">'+diff+'d left</span>':
+               diff<=60?'<span class="chip chip-yellow">'+diff+'d left</span>':
+               '<span class="chip chip-green">'+diff+'d left</span>';
+    return`<div class="exp-row">
+      <div><strong>${m.name}</strong><br><small style="color:var(--muted)">${m.category} · Qty: ${m.qty}</small></div>
+      <div style="text-align:right;">${chip}<br><small style="color:var(--muted)">${m.expiry}</small></div>
+    </div>`;
+  }).join('');
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDashboard() {
+  const today=new Date().toDateString();
+  const bSales=sales.filter(s=>s.branchId===currentBranch.id);
+  const tSales=bSales.filter(s=>new Date(s.date).toDateString()===today);
+  const tRev=tSales.reduce((a,s)=>a+s.total,0);
+  const tPro=tSales.reduce((a,s)=>a+s.profit,0);
+  const meds=branchMeds(currentBranch.id);
+  const lowCnt=meds.filter(m=>m.qty>0&&m.qty<=m.lowAlert).length;
+  const outCnt=meds.filter(m=>m.qty===0).length;
+  const todayNow=new Date(); todayNow.setHours(0,0,0,0);
+  const expCnt=meds.filter(m=>m.expiry&&new Date(m.expiry)<new Date(todayNow.getFullYear(),todayNow.getMonth()+2,todayNow.getDate())).length;
+  const allRev=bSales.reduce((a,s)=>a+s.total,0);
+
+  document.getElementById('dashCards').innerHTML=`
+    <div class="stat-card"><div class="sc-label">Medicines</div><div class="sc-val">${meds.length}</div><div class="sc-sub">${currentBranch.name}</div></div>
+    <div class="stat-card gold"><div class="sc-label">Today Revenue</div><div class="sc-val">${ugx(tRev)}</div><div class="sc-sub">${tSales.length} sale(s)</div></div>
+    <div class="stat-card"><div class="sc-label">Today Profit</div><div class="sc-val">${ugx(tPro)}</div><div class="sc-sub">UGX</div></div>
+    <div class="stat-card warn"><div class="sc-label">Low Stock</div><div class="sc-val">${lowCnt}</div><div class="sc-sub">${outCnt} out of stock</div></div>
+    <div class="stat-card red"><div class="sc-label">Expiry Alerts</div><div class="sc-val">${expCnt}</div><div class="sc-sub">Within 60 days</div></div>
+    <div class="stat-card"><div class="sc-label">All-Time Revenue</div><div class="sc-val">${ugx(allRev)}</div><div class="sc-sub">${bSales.length} total sales</div></div>
+  `;
+
+  document.getElementById('dashRecentSales').innerHTML=bSales.slice(0,6).map(s=>`<tr>
+    <td>${fmtDate(s.date)}</td><td>${s.items.length}</td><td>${ugx(s.total)}</td><td><span class="chip chip-grey">${s.role}</span></td>
+  </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px;">No sales yet.</td></tr>';
+
+  const alerts=[];
+  meds.filter(m=>m.qty===0).forEach(m=>alerts.push(`<div class="alert alert-red">⛔ <strong>${m.name}</strong> is OUT OF STOCK</div>`));
+  meds.filter(m=>m.qty>0&&m.qty<=m.lowAlert).forEach(m=>alerts.push(`<div class="alert alert-warn">⚠️ <strong>${m.name}</strong> — only ${m.qty} units left</div>`));
+  const todayD=new Date(); todayD.setHours(0,0,0,0);
+  meds.filter(m=>m.expiry&&new Date(m.expiry)<todayD).forEach(m=>alerts.push(`<div class="alert alert-red">🚫 <strong>${m.name}</strong> EXPIRED on ${m.expiry}</div>`));
+  document.getElementById('dashAlerts').innerHTML=alerts.length?alerts.slice(0,8).join(''):'<p style="color:var(--muted);font-size:12px;">All good! No alerts. ✅</p>';
+}
+
+function updateBadges() {
+  const meds=branchMeds(currentBranch.id);
+  const low=meds.filter(m=>m.qty<=m.lowAlert).length;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exp=meds.filter(m=>m.expiry&&new Date(m.expiry)<new Date(today.getFullYear(),today.getMonth()+2,today.getDate())).length;
+  document.getElementById('lowBadge').textContent=low+' Low';
+  document.getElementById('expBadge').textContent=exp+' Expiring';
+}
+
+// ── REPORTS ───────────────────────────────────────────────────
+function populateRepBranch() {
+  const sel=document.getElementById('repBranch');
+  sel.innerHTML=`<option value="all">All Branches</option>`+branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+}
+
+function renderReports() {
+  const bFilter=document.getElementById('repBranch')?.value||'all';
+  const period=document.getElementById('repPeriod')?.value||'month';
+  const now=new Date(); let since=new Date(0);
+  if(period==='today'){since=new Date();since.setHours(0,0,0,0);}
+  else if(period==='week'){since=new Date();since.setDate(since.getDate()-7);}
+  else if(period==='month'){since=new Date();since.setDate(1);since.setHours(0,0,0,0);}
+  const filtered=sales.filter(s=>(bFilter==='all'||s.branchId===bFilter)&&new Date(s.date)>=since);
+  const rev=filtered.reduce((a,s)=>a+s.total,0);
+  const prof=filtered.reduce((a,s)=>a+s.profit,0);
+  document.getElementById('repCards').innerHTML=`
+    <div class="stat-card"><div class="sc-label">Revenue</div><div class="sc-val">${ugx(rev)}</div></div>
+    <div class="stat-card gold"><div class="sc-label">Profit</div><div class="sc-val">${ugx(prof)}</div></div>
+    <div class="stat-card"><div class="sc-label">Transactions</div><div class="sc-val">${filtered.length}</div></div>
+    <div class="stat-card"><div class="sc-label">Avg Sale</div><div class="sc-val">${filtered.length?ugx(Math.round(rev/filtered.length)):0}</div></div>
+  `;
+  // top sell chart
+  const soldMap={};
+  filtered.forEach(s=>s.items.forEach(i=>{soldMap[i.name]=(soldMap[i.name]||0)+i.qty*i.price;}));
+  const top=Object.entries(soldMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const mx=top[0]?.[1]||1;
+  document.getElementById('topSellChart').innerHTML=top.length?top.map(([n,v])=>`<div class="chart-row"><div class="bl" title="${n}">${n}</div><div class="bar-out"><div class="bar-in" style="width:${Math.round(v/mx*100)}%"></div></div><div class="bar-v">${ugx(v)}</div></div>`).join(''):'<p style="color:var(--muted);font-size:12px;">No data.</p>';
+  // cat chart
+  const catMap={};
+  filtered.forEach(s=>s.items.forEach(i=>{
+    const m=Object.values(medicines).flat().find(m=>m.name===i.name);
+    const cat=m?.category||'Other';
+    catMap[cat]=(catMap[cat]||0)+i.qty*i.price;
+  }));
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const cmx=cats[0]?.[1]||1;
+  document.getElementById('catChart').innerHTML=cats.length?cats.map(([c,v])=>`<div class="chart-row"><div class="bl">${c}</div><div class="bar-out"><div class="bar-in" style="width:${Math.round(v/cmx*100)}%;background:var(--gold)"></div></div><div class="bar-v">${ugx(v)}</div></div>`).join(''):'<p style="color:var(--muted);font-size:12px;">No data.</p>';
+  // daily
+  const dayMap={};
+  filtered.forEach(s=>{
+    const d=s.date.slice(0,10);
+    if(!dayMap[d])dayMap[d]={count:0,rev:0,prof:0,br:s.branchName};
+    dayMap[d].count++;dayMap[d].rev+=s.total;dayMap[d].prof+=s.profit;
+  });
+  const days=Object.entries(dayMap).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
+  document.getElementById('dailyTable').innerHTML=days.length
+    ?days.map(([d,v])=>`<tr><td>${d}</td><td>${v.br}</td><td>${v.count}</td><td>${ugx(v.rev)}</td><td style="color:var(--teal);">${ugx(v.prof)}</td></tr>`).join('')
+    :'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">No data for this period.</td></tr>';
+}
+
+// ── BRANCHES ─────────────────────────────────────────────────
+function addBranch() {
+  const name=document.getElementById('brName').value.trim();
+  const loc=document.getElementById('brLoc').value.trim();
+  if(!name){toast('Branch name required.');return;}
+  branches.push({id:genId(),name,location:loc});
+  persist(); renderBranchTable(); populateLoginBranch();
+  document.getElementById('brName').value=''; document.getElementById('brLoc').value='';
+  toast('Branch added.');
+}
+
+function deleteBranch(id) {
+  if(branches.length<=1){toast('Need at least one branch.');return;}
+  if(!confirm('Delete this branch? Its data will remain.'))return;
+  branches=branches.filter(b=>b.id!==id);
+  persist(); renderBranchTable();
+  toast('Branch removed.');
+}
+
+function renderBranchTable() {
+  document.getElementById('branchTable').innerHTML=branches.map(b=>{
+    const bSales=sales.filter(s=>s.branchId===b.id);
+    const bMeds=(medicines[b.id]||[]).length;
+    return`<tr>
+      <td><strong>${b.name}</strong></td>
+      <td>${b.location}</td>
+      <td>${bMeds}</td>
+      <td>${bSales.length} sales · UGX ${ugx(bSales.reduce((a,s)=>a+s.total,0))}</td>
+      <td><button class="btn btn-red btn-xs" onclick="deleteBranch('${b.id}')">Remove</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function loadSettings(){
+  document.getElementById('setName').value=settings.name||'';
+  document.getElementById('setTag').value=settings.tag||'';
+  document.getElementById('setPhone').value=settings.phone||'';
+  document.getElementById('setAddr').value=settings.addr||'';
+}
+function saveSettings(){
+  settings={
+    name:document.getElementById('setName').value.trim()||'PharmaSys Pro',
+    tag:document.getElementById('setTag').value.trim(),
+    phone:document.getElementById('setPhone').value.trim(),
+    addr:document.getElementById('setAddr').value.trim(),
+  };
+  persist(); toast('Settings saved.');
+}
+function savePins(){
+  const m=document.getElementById('pinMgr').value;
+  const p=document.getElementById('pinPhr').value;
+  const c=document.getElementById('pinCsh').value;
+  if((m&&m.length!==4)||(p&&p.length!==4)||(c&&c.length!==4)){toast('PINs must be exactly 4 digits.');return;}
+  if(m)pins.manager=m;if(p)pins.pharmacist=p;if(c)pins.cashier=c;
+  persist(); toast('PINs updated.');
+  ['pinMgr','pinPhr','pinCsh'].forEach(id=>document.getElementById(id).value='');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({branches,medicines,sales,settings},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='pharmasys_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function clearAll(){
+  branches=[{id:'b1',name:'Main Branch',location:'Kampala'}];
+  medicines={};sales=[];settings={name:'PharmaSys Pro',tag:'Your health, our priority',phone:'',addr:'Uganda'};
+  pins={manager:'1234',pharmacist:'5678',cashier:'0000'};
+  persist();alert('All data cleared.');location.reload();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function ugx(n){return Math.round(n).toLocaleString('en-UG');}
+function fmtDate(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ── ANALYSIS ──────────────────────────────────────────────────
+function populateAnalysisBranch() {
+  const sel = document.getElementById('anBranch');
+  sel.innerHTML = `<option value="all">All Branches</option>` + branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+}
+
+function switchAnTab(id, el) {
+  document.querySelectorAll('.an-tp').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.an-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function getAnalysisSales() {
+  const bFilter = document.getElementById('anBranch')?.value || 'all';
+  const period = document.getElementById('anPeriod')?.value || 'month';
+  let since = new Date(0);
+  if (period==='week') { since=new Date(); since.setDate(since.getDate()-7); }
+  else if (period==='month') { since=new Date(); since.setDate(1); since.setHours(0,0,0,0); }
+  else if (period==='quarter') { since=new Date(); since.setMonth(since.getMonth()-3); }
+  return sales.filter(s => (bFilter==='all'||s.branchId===bFilter) && new Date(s.date)>=since);
+}
+
+function getAllMedsFlat() {
+  return Object.values(medicines).flat();
+}
+
+function renderAnalysis() {
+  renderProfitHeatmapCards();
+  renderProfitHeatmapGrid();
+  renderTimeHeatmapGrid();
+  renderForecast();
+  renderRetention();
+  renderDeadstock();
+}
+
+// ── PROFITABILITY HEATMAP ───────────────────────────────────
+function renderProfitHeatmapCards() {
+  const filtered = getAnalysisSales();
+  const rev = filtered.reduce((a,s)=>a+s.total,0);
+  const profit = filtered.reduce((a,s)=>a+s.profit,0);
+  const margin = rev>0 ? Math.round(profit/rev*100) : 0;
+  const allMeds = getAllMedsFlat();
+  const profitByMed = {};
+  filtered.forEach(s=>s.items.forEach(i=>{
+    const p = (i.price-i.buyPrice)*i.qty;
+    profitByMed[i.name] = (profitByMed[i.name]||0) + p;
+  }));
+  const sorted = Object.entries(profitByMed).sort((a,b)=>b[1]-a[1]);
+  const bestMed = sorted[0]?.[0] || '—';
+  const worstMed = sorted.length ? sorted[sorted.length-1][0] : '—';
+  document.getElementById('heatmapCards').innerHTML = `
+    <div class="stat-card"><div class="sc-label">Revenue</div><div class="sc-val">${ugx(rev)}</div></div>
+    <div class="stat-card gold"><div class="sc-label">Profit</div><div class="sc-val">${ugx(profit)}</div><div class="sc-sub">${margin}% margin</div></div>
+    <div class="stat-card"><div class="sc-label">Most Profitable</div><div class="sc-val" style="font-size:14px;">${bestMed}</div></div>
+    <div class="stat-card warn"><div class="sc-label">Least Profitable</div><div class="sc-val" style="font-size:14px;">${worstMed}</div></div>
+  `;
+}
+
+function heatColor(pct) {
+  // pct from 0 (low) to 1 (high) -> teal scale
+  if (pct <= 0) return '#f1f5f8';
+  const alpha = Math.max(0.12, pct);
+  return `rgba(10,124,110,${alpha})`;
+}
+
+function renderProfitHeatmapGrid() {
+  const filtered = getAnalysisSales();
+  const allMeds = getAllMedsFlat();
+  const catMedMap = {}; // category -> { medName: profit }
+  filtered.forEach(s=>s.items.forEach(i=>{
+    const m = allMeds.find(m=>m.name===i.name);
+    const cat = m?.category || 'Other';
+    if (!catMedMap[cat]) catMedMap[cat] = {};
+    const profit = (i.price-i.buyPrice)*i.qty;
+    catMedMap[cat][i.name] = (catMedMap[cat][i.name]||0) + profit;
+  }));
+  const cats = Object.keys(catMedMap);
+  if (!cats.length) {
+    document.getElementById('profitHeatmapGrid').innerHTML = '<p style="color:var(--muted);font-size:12px;">No sales data yet for this period. Make some sales to see the profitability heatmap.</p>';
+    return;
+  }
+  // find max profit across everything for color scaling
+  let maxProfit = 1;
+  cats.forEach(cat => { Object.values(catMedMap[cat]).forEach(v => { if (v > maxProfit) maxProfit = v; }); });
+
+  let html = '<div class="heatmap-wrap"><table class="heatmap-table"><tbody>';
+  cats.forEach(cat => {
+    const meds = Object.entries(catMedMap[cat]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    html += `<tr><td class="hm-rowlabel"><span class="chip chip-blue">${cat}</span></td>`;
+    meds.forEach(([name, profit]) => {
+      const pct = Math.max(0, profit) / maxProfit;
+      const bg = heatColor(pct);
+      const textColor = pct > 0.55 ? '#fff' : 'var(--text)';
+      html += `<td class="hm-cell" style="background:${bg};color:${textColor};" title="${name}">${ugx(profit)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += `<div class="heatmap-legend">
+    <span>Low profit</span>
+    <span class="lg-box" style="background:${heatColor(0.15)}"></span>
+    <span class="lg-box" style="background:${heatColor(0.4)}"></span>
+    <span class="lg-box" style="background:${heatColor(0.7)}"></span>
+    <span class="lg-box" style="background:${heatColor(1)}"></span>
+    <span>High profit</span>
+  </div>`;
+  document.getElementById('profitHeatmapGrid').innerHTML = html;
+}
+
+function renderTimeHeatmapGrid() {
+  const filtered = getAnalysisSales();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const hours = [8,9,10,11,12,13,14,15,16,17,18,19,20];
+  const grid = {};
+  days.forEach(d=>{ grid[d]={}; hours.forEach(h=>{ grid[d][h]=0; }); });
+  filtered.forEach(s=>{
+    const d = new Date(s.date);
+    const day = days[d.getDay()];
+    const hr = d.getHours();
+    if (grid[day] && hr>=8 && hr<=20) grid[day][hr] += s.total;
+  });
+  const allVals = days.flatMap(d=>hours.map(h=>grid[d][h]));
+  const maxVal = Math.max(...allVals, 1);
+  if (!filtered.length) {
+    document.getElementById('timeHeatmapGrid').innerHTML = '<p style="color:var(--muted);font-size:12px;">No sales recorded yet for this period.</p>';
+    return;
+  }
+  let html = '<div class="heatmap-wrap"><table class="heatmap-table"><thead><tr><th></th>' + hours.map(h=>`<th>${h}:00</th>`).join('') + '</tr></thead><tbody>';
+  days.forEach(d => {
+    html += `<tr><td class="hm-rowlabel">${d}</td>`;
+    hours.forEach(h => {
+      const v = grid[d][h];
+      const pct = v / maxVal;
+      const bg = heatColor(pct);
+      const textColor = pct > 0.55 ? '#fff' : 'var(--text)';
+      html += `<td class="hm-cell" style="background:${bg};color:${textColor};">${v>0?ugx(v):''}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<p style="font-size:11px;color:var(--muted);margin-top:10px;">Darker green = more revenue at that time. Use this to schedule staff during peak hours.</p>';
+  document.getElementById('timeHeatmapGrid').innerHTML = html;
+}
+
+// ── SALES FORECAST ───────────────────────────────────────────
+function renderForecast() {
+  const el = document.getElementById('forecastContent');
+  const meds = branchMeds(currentBranch.id);
+  if (!sales.length) { el.innerHTML = '<p style="color:var(--muted);font-size:12px;">No sales data yet.</p>'; return; }
+  const rows = meds.map(m => {
+    const l30 = sales.filter(s=>new Date(s.date)>new Date(Date.now()-30*86400000));
+    const l7  = sales.filter(s=>new Date(s.date)>new Date(Date.now()-7*86400000));
+    const s30 = l30.reduce((a,s)=>a+s.items.filter(i=>i.id===m.id).reduce((b,i)=>b+i.qty,0),0);
+    const s7  = l7.reduce((a,s)=>a+s.items.filter(i=>i.id===m.id).reduce((b,i)=>b+i.qty,0),0);
+    if (!s30) return null;
+    const daily = s30/30;
+    const forecast30 = Math.round(daily*30);
+    const daysLeft = daily>0 ? Math.round(m.qty/daily) : 999;
+    const trend = (s7/7) > daily ? '📈 Rising' : '📉 Declining';
+    return { m, s30, daily, forecast30, daysLeft, trend };
+  }).filter(Boolean).sort((a,b)=>b.s30-a.s30);
+  if (!rows.length) { el.innerHTML = '<p style="color:var(--muted);font-size:12px;">Not enough sales history yet to forecast.</p>'; return; }
+  el.innerHTML = `<div class="tw"><table><thead><tr><th>Medicine</th><th>Sold (30d)</th><th>Daily Avg</th><th>Forecast (Next 30d)</th><th>Days of Stock Left</th><th>Trend</th><th>Action</th></tr></thead><tbody>
+    ${rows.map(r=>{
+      const urgent = r.daysLeft<14, warn = r.daysLeft<30;
+      return `<tr><td><strong>${r.m.name}</strong></td><td>${r.s30}</td><td>${r.daily.toFixed(1)}/day</td><td><strong>${r.forecast30}</strong> units</td>
+      <td><span class="chip ${urgent?'chip-red':warn?'chip-yellow':'chip-green'}">${r.daysLeft===999?'∞':r.daysLeft+' days'}</span></td>
+      <td>${r.trend}</td><td>${urgent?'🚨 <strong>Reorder NOW</strong>':warn?'⚠️ Plan reorder':'✅ OK'}</td></tr>`;
+    }).join('')}
+  </tbody></table></div>`;
+}
+
+// ── CUSTOMER RETENTION ───────────────────────────────────────
+function renderRetention() {
+  const filtered = getAnalysisSales();
+  const custMap = {};
+  filtered.forEach(s=>{
+    const key = s.customer || 'Walk-in';
+    if (key === 'Walk-in') return;
+    if (!custMap[key]) custMap[key]=[];
+    custMap[key].push(s);
+  });
+  const total = Object.keys(custMap).length;
+  const returning = Object.values(custMap).filter(a=>a.length>1).length;
+  const onceOnly = total - returning;
+  const rate = total>0 ? Math.round(returning/total*100) : 0;
+  const avgVisits = total>0 ? (Object.values(custMap).reduce((a,b)=>a+b.length,0)/total).toFixed(1) : 0;
+
+  document.getElementById('retentionCards').innerHTML = `
+    <div class="stat-card"><div class="sc-label">Named Customers</div><div class="sc-val">${total}</div></div>
+    <div class="stat-card"><div class="sc-label">Retention Rate</div><div class="sc-val">${rate}%</div><div class="sc-sub">Returned at least once</div></div>
+    <div class="stat-card warn"><div class="sc-label">One-Time Only</div><div class="sc-val">${onceOnly}</div></div>
+    <div class="stat-card gold"><div class="sc-label">Avg Visits</div><div class="sc-val">${avgVisits}</div><div class="sc-sub">per customer</div></div>
+  `;
+
+  const top = Object.entries(custMap).map(([name,s])=>({name, visits:s.length, total:s.reduce((a,x)=>a+x.total,0)})).sort((a,b)=>b.total-a.total).slice(0,10);
+  document.getElementById('topCustomersTbl').innerHTML = top.length
+    ? `<div class="tw"><table><thead><tr><th>Customer</th><th>Visits</th><th>Total Spend</th></tr></thead><tbody>${top.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.visits}</td><td>${ugx(c.total)}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p style="color:var(--muted);font-size:12px;">No named customers yet — most sales are recorded as Walk-in.</p>';
+
+  document.getElementById('retentionVisual').innerHTML = `
+    <div style="display:flex;align-items:center;margin-bottom:12px;">
+      <div style="height:24px;background:var(--teal);border-radius:4px 0 0 4px;width:${rate}%;min-width:2px;"></div>
+      <div style="height:24px;background:#f0f4f8;border-radius:0 4px 4px 0;flex:1;"></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);">${rate}% of named customers returned for another purchase.<br>
+    ${rate<30?'💡 Consider loyalty discounts to improve retention.':rate>60?'🌟 Excellent retention rate!':'👍 Good retention — keep up the service.'}</p>
+  `;
+}
+
+// ── DEAD STOCK ────────────────────────────────────────────────
+function renderDeadstock() {
+  const days = parseInt(document.getElementById('deadDays')?.value || '30');
+  const el = document.getElementById('deadstockContent');
+  const cutoff = new Date(Date.now()-days*86400000);
+  const meds = branchMeds(currentBranch.id);
+  const dead = meds.filter(m=>{
+    if (m.qty===0) return false;
+    const lastSale = sales.filter(s=>s.items.some(i=>i.id===m.id)).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return !lastSale || new Date(lastSale.date)<cutoff;
+  });
+  if (!dead.length) { el.innerHTML = `<div class="alert alert-green">✅ No dead stock found in the last ${days} days.</div>`; return; }
+  const totalValue = dead.reduce((a,m)=>a+m.qty*m.sellPrice,0);
+  el.innerHTML = `<div class="alert alert-warn" style="margin-bottom:14px;">⚠️ ${dead.length} medicines haven't sold in ${days}+ days. Total tied-up value: <strong>UGX ${ugx(totalValue)}</strong></div>
+    <div class="tw"><table><thead><tr><th>Medicine</th><th>Category</th><th>Qty in Stock</th><th>Value Tied Up</th><th>Last Sale</th><th>Days Since</th><th>Suggestion</th></tr></thead><tbody>
+    ${dead.map(m=>{
+      const lastSale = sales.filter(s=>s.items.some(i=>i.id===m.id)).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      const lastDate = lastSale ? fmtDate(lastSale.date) : 'Never sold';
+      const daysSince = lastSale ? Math.round((Date.now()-new Date(lastSale.date))/86400000) : 999;
+      const suggest = m.expiry && new Date(m.expiry)<new Date(Date.now()+60*86400000) ? '⛔ Dispose (expiring)' : daysSince>90 ? '📉 Discount & promote' : '💡 Review pricing';
+      return `<tr><td><strong>${m.name}</strong></td><td>${m.category}</td><td>${m.qty}</td><td style="color:var(--red);">${ugx(m.qty*m.sellPrice)}</td><td>${lastDate}</td><td><span class="chip ${daysSince>90?'chip-red':'chip-yellow'}">${daysSince===999?'Never':daysSince+'d'}</span></td><td>${suggest}</td></tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+populateLoginBranch();
+</script>
+</body>
+</html>
